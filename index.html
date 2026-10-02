@@ -224,6 +224,68 @@
     .base-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: .88rem; }
     .base-row span:first-child { color: var(--muted); }
 
+    .scenario-panel { margin-top: 20px; padding: 24px; }
+
+    .scenario-notice {
+      margin: 14px 0 20px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f3f8f6;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .scenario-card {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+    }
+
+    .scenario-card h3 { margin: 0 0 12px; font-size: .97rem; }
+    .scenario-card label, .criteria label { font-size: .82rem; }
+    .scenario-card input, .criteria input[type="text"], .case-label input {
+      display: block;
+      width: 100%;
+      min-height: 39px;
+      margin-top: 5px;
+      padding: 8px 10px;
+      border: 1px solid #b9cbc5;
+      border-radius: 8px;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    .criteria {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) 140px;
+      gap: 10px;
+      align-items: end;
+      margin: 14px 0;
+    }
+
+    .criteria label, .case-label { display: block; }
+    .criteria input[type="range"] { width: 100%; accent-color: var(--green); }
+    .case-label { max-width: 440px; margin-bottom: 18px; }
+    .weight-value { display: block; color: var(--muted); font-size: .78rem; }
+
+    .rankings {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .rankings h3 { margin: 0 0 10px; font-size: .98rem; }
+    .ranking-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 11px; border-radius: 8px; }
+    .ranking-row:first-of-type { background: var(--mint); font-weight: 700; }
+    .ranking-row + .ranking-row { margin-top: 5px; background: #f7f9f8; }
+    .ranking-note { margin: 10px 0 0; color: var(--muted); font-size: .82rem; }
+
     .error {
       margin: 13px 0 0;
       color: #a12d2d;
@@ -246,6 +308,9 @@
       .workspace { grid-template-columns: 1fr; }
       .input-panel { padding: 19px; }
       .results { padding: 19px; }
+      .scenario-panel { padding: 19px; }
+      .scenario-grid { grid-template-columns: 1fr; }
+      .criteria { grid-template-columns: 1fr 115px; }
     }
   </style>
 </head>
@@ -302,6 +367,81 @@
         </div>
       </section>
     </div>
+
+    <section class="panel scenario-panel" aria-labelledby="scenario-heading">
+      <h2 id="scenario-heading">Compare hypothetical scenarios</h2>
+      <p class="hint">Run a weighted comparison using assumptions you provide. This exercise does not use the DNA sequence above.</p>
+      <div class="scenario-notice">
+        Scores and rankings are only arithmetic on your hypothetical inputs. They do not assess genetic damage, predict delivery, identify a suitable virus or treatment, or replace specialist advice. Do not enter patient-identifying information.
+      </div>
+      <form id="scenario-form" novalidate>
+        <label class="case-label" for="case-label">Optional case label (non-identifying)
+          <input id="case-label" type="text" maxlength="60" placeholder="e.g. Example deletion case">
+        </label>
+        <div class="criteria" aria-label="Comparison criteria and priorities">
+          <div>
+            <label for="criterion-1">Criterion 1</label>
+            <input id="criterion-1" type="text" maxlength="40" placeholder="Name the factor you are comparing" required>
+          </div>
+          <label for="weight-1">Priority
+            <input id="weight-1" type="range" min="1" max="5" value="3">
+            <span class="weight-value" id="weight-value-1">3 / 5</span>
+          </label>
+          <div>
+            <label for="criterion-2">Criterion 2</label>
+            <input id="criterion-2" type="text" maxlength="40" placeholder="Name the factor you are comparing" required>
+          </div>
+          <label for="weight-2">Priority
+            <input id="weight-2" type="range" min="1" max="5" value="3">
+            <span class="weight-value" id="weight-value-2">3 / 5</span>
+          </label>
+          <div>
+            <label for="criterion-3">Criterion 3</label>
+            <input id="criterion-3" type="text" maxlength="40" placeholder="Name the factor you are comparing" required>
+          </div>
+          <label for="weight-3">Priority
+            <input id="weight-3" type="range" min="1" max="5" value="3">
+            <span class="weight-value" id="weight-value-3">3 / 5</span>
+          </label>
+        </div>
+        <div class="scenario-grid">
+          <fieldset class="scenario-card">
+            <legend class="hint">Enter your own fictional scores (0–10)</legend>
+            <h3>Scenario A</h3>
+            <label for="name-a">Name<input id="name-a" type="text" maxlength="40" placeholder="Scenario A" required></label>
+            <label for="score-a-1">Criterion 1 score<input id="score-a-1" type="number" min="0" max="10" step="1" required></label>
+            <label for="score-a-2">Criterion 2 score<input id="score-a-2" type="number" min="0" max="10" step="1" required></label>
+            <label for="score-a-3">Criterion 3 score<input id="score-a-3" type="number" min="0" max="10" step="1" required></label>
+          </fieldset>
+          <fieldset class="scenario-card">
+            <legend class="hint">Enter your own fictional scores (0–10)</legend>
+            <h3>Scenario B</h3>
+            <label for="name-b">Name<input id="name-b" type="text" maxlength="40" placeholder="Scenario B" required></label>
+            <label for="score-b-1">Criterion 1 score<input id="score-b-1" type="number" min="0" max="10" step="1" required></label>
+            <label for="score-b-2">Criterion 2 score<input id="score-b-2" type="number" min="0" max="10" step="1" required></label>
+            <label for="score-b-3">Criterion 3 score<input id="score-b-3" type="number" min="0" max="10" step="1" required></label>
+          </fieldset>
+          <fieldset class="scenario-card">
+            <legend class="hint">Enter your own fictional scores (0–10)</legend>
+            <h3>Scenario C</h3>
+            <label for="name-c">Name<input id="name-c" type="text" maxlength="40" placeholder="Scenario C" required></label>
+            <label for="score-c-1">Criterion 1 score<input id="score-c-1" type="number" min="0" max="10" step="1" required></label>
+            <label for="score-c-2">Criterion 2 score<input id="score-c-2" type="number" min="0" max="10" step="1" required></label>
+            <label for="score-c-3">Criterion 3 score<input id="score-c-3" type="number" min="0" max="10" step="1" required></label>
+          </fieldset>
+        </div>
+        <p class="error" id="scenario-error" role="alert" hidden></p>
+        <div class="actions">
+          <button class="primary" type="submit">Run comparison</button>
+          <button class="secondary" id="scenario-clear" type="reset">Reset comparison</button>
+        </div>
+        <div class="rankings" id="rankings" aria-live="polite" hidden>
+          <h3 id="ranking-heading">Illustrative ranking</h3>
+          <div id="ranking-list"></div>
+          <p class="ranking-note">A higher number only means a higher weighted score from the values entered here; it is not a measure of biological or clinical suitability.</p>
+        </div>
+      </form>
+    </section>
     <footer>For research and educational exploration only · Not a clinical tool</footer>
   </main>
 
@@ -365,6 +505,80 @@
         summary.hidden = true;
         emptyState.hidden = false;
         input.focus();
+      });
+
+      const scenarioForm = document.querySelector("#scenario-form");
+      const scenarioError = document.querySelector("#scenario-error");
+      const rankingSection = document.querySelector("#rankings");
+      const criteriaInputs = [1, 2, 3].map((index) => ({
+        label: document.querySelector(`#criterion-${index}`),
+        weight: document.querySelector(`#weight-${index}`)
+      }));
+
+      criteriaInputs.forEach(({ weight }, index) => {
+        weight.addEventListener("input", () => {
+          document.querySelector(`#weight-value-${index + 1}`).textContent = `${weight.value} / 5`;
+        });
+      });
+
+      scenarioForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        scenarioError.hidden = true;
+        const labels = criteriaInputs.map(({ label }) => label.value.trim());
+        if (labels.some((label) => !label)) {
+          scenarioError.textContent = "Name all three comparison criteria.";
+          scenarioError.hidden = false;
+          rankingSection.hidden = true;
+          return;
+        }
+
+        const weights = criteriaInputs.map(({ weight }) => Number(weight.value));
+        const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+        const scenarios = ["a", "b", "c"].map((key) => {
+          const name = document.querySelector(`#name-${key}`).value.trim();
+          const rawScores = [1, 2, 3].map((index) => document.querySelector(`#score-${key}-${index}`).value);
+          const scores = rawScores.map(Number);
+          if (!name || rawScores.some((score) => score === "") ||
+              scores.some((score) => !Number.isInteger(score) || score < 0 || score > 10)) {
+            return null;
+          }
+          const weightedScore = scores.reduce((sum, score, index) => sum + score * weights[index], 0) / totalWeight;
+          return { name, weightedScore };
+        });
+
+        if (scenarios.some((scenario) => scenario === null)) {
+          scenarioError.textContent = "Give each scenario a name and enter whole-number scores from 0 to 10.";
+          scenarioError.hidden = false;
+          rankingSection.hidden = true;
+          return;
+        }
+
+        scenarios.sort((first, second) => second.weightedScore - first.weightedScore);
+        const rankingList = document.querySelector("#ranking-list");
+        rankingList.replaceChildren();
+        scenarios.forEach(({ name, weightedScore }, index) => {
+          const row = document.createElement("div");
+          row.className = "ranking-row";
+          const label = document.createElement("span");
+          label.textContent = `${index + 1}. ${name}`;
+          const score = document.createElement("strong");
+          score.textContent = `${(weightedScore * 10).toFixed(1)} / 100`;
+          row.append(label, score);
+          rankingList.append(row);
+        });
+        const caseLabel = document.querySelector("#case-label").value.trim();
+        document.querySelector("#ranking-heading").textContent = caseLabel
+          ? `Illustrative ranking · ${caseLabel}`
+          : "Illustrative ranking";
+        rankingSection.hidden = false;
+      });
+
+      scenarioForm.addEventListener("reset", () => {
+        scenarioError.hidden = true;
+        rankingSection.hidden = true;
+        criteriaInputs.forEach((_, index) => {
+          document.querySelector(`#weight-value-${index + 1}`).textContent = "3 / 5";
+        });
       });
     })();
   </script>
