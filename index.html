@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f8f7">
+  <title>Sequence Explorer | DMD Scenario Runner</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18312e;
+      --muted: #5d706c;
+      --green: #176c5b;
+      --green-dark: #105244;
+      --mint: #e6f3ed;
+      --line: #dbe5e1;
+      --paper: #fff;
+      --canvas: #f5f8f7;
+      --alert: #fff4df;
+      --alert-ink: #704a0e;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    .page {
+      width: min(100% - 40px, 980px);
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--green-dark);
+      font-size: .9rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--mint);
+      font-size: 1.15rem;
+    }
+
+    header { margin: 48px 0 28px; }
+
+    h1 {
+      max-width: 700px;
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      letter-spacing: -.045em;
+      line-height: 1.08;
+    }
+
+    header p {
+      max-width: 680px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .privacy {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin: 26px 0;
+      padding: 15px 17px;
+      border: 1px solid #eadbb7;
+      border-radius: 12px;
+      background: var(--alert);
+      color: var(--alert-ink);
+      font-size: .93rem;
+    }
+
+    .privacy strong { display: block; margin-bottom: 2px; }
+    .privacy p { margin: 0; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(240px, .8fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 8px 24px rgb(20 55 46 / 4%);
+    }
+
+    .input-panel { padding: 24px; }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 1.16rem;
+      letter-spacing: -.015em;
+    }
+
+    .hint {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 250px;
+      resize: vertical;
+      padding: 15px;
+      border: 1px solid #b9cbc5;
+      border-radius: 10px;
+      background: #fcfdfd;
+      color: var(--ink);
+      font: 500 .94rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    textarea:focus {
+      border-color: var(--green);
+      outline: 3px solid rgb(23 108 91 / 15%);
+    }
+
+    .input-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      min-height: 43px;
+      padding: 9px 16px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      cursor: pointer;
+      font: inherit;
+      font-size: .92rem;
+      font-weight: 700;
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgb(23 108 91 / 28%);
+      outline-offset: 2px;
+    }
+
+    .primary { background: var(--green); color: white; }
+    .primary:hover { background: var(--green-dark); }
+    .secondary { border-color: var(--line); background: white; color: var(--ink); }
+    .secondary:hover { background: #f2f7f5; }
+
+    .results { padding: 22px; }
+    .results h2 { margin-bottom: 16px; }
+
+    .empty {
+      padding: 18px 14px;
+      border: 1px dashed #cbd9d4;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: .9rem;
+      text-align: center;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 13px;
+      border-radius: 10px;
+      background: #f3f8f6;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 1.24rem;
+      overflow-wrap: anywhere;
+    }
+
+    .composition {
+      margin-top: 17px;
+      padding-top: 15px;
+      border-top: 1px solid var(--line);
+    }
+
+    .composition h3 { margin: 0 0 9px; font-size: .9rem; }
+    .base-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: .88rem; }
+    .base-row span:first-child { color: var(--muted); }
+
+    .error {
+      margin: 13px 0 0;
+      color: #a12d2d;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
+    [hidden] { display: none !important; }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: .82rem;
+      text-align: center;
+    }
+
+    @media (max-width: 720px) {
+      .page { width: min(100% - 28px, 560px); padding-top: 20px; }
+      header { margin-top: 36px; }
+      .workspace { grid-template-columns: 1fr; }
+      .input-panel { padding: 19px; }
+      .results { padding: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topline"><span class="mark" aria-hidden="true">⌬</span> DMD SCENARIO RUNNER</div>
+
+    <header>
+      <h1>Explore a genetic sequence</h1>
+      <p>Paste a DNA sequence to see a few basic sequence statistics. This prototype analyzes sequence text only; it does not interpret variants or provide a diagnosis.</p>
+    </header>
+
+    <aside class="privacy" aria-label="Privacy notice">
+      <span aria-hidden="true">🔒</span>
+      <div>
+        <strong>Your sequence stays in this browser.</strong>
+        <p>This page processes input locally and does not upload or save it. Avoid entering identifying or sensitive information on shared devices.</p>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <section class="panel input-panel" aria-labelledby="input-heading">
+        <h2 id="input-heading">DNA sequence</h2>
+        <p class="hint">Paste a sequence directly or include one FASTA header line.</p>
+        <form id="sequence-form" novalidate>
+          <label for="sequence">Sequence input</label>
+          <textarea id="sequence" name="sequence" spellcheck="false" autocapitalize="characters" placeholder=">sample_sequence&#10;ATGCGTAC..." aria-describedby="input-note"></textarea>
+          <p class="input-note" id="input-note">Accepts DNA bases A, C, G, T and IUPAC ambiguity codes. Spaces and line breaks are ignored.</p>
+          <p class="error" id="error" role="alert" hidden></p>
+          <div class="actions">
+            <button class="primary" type="submit">Analyze sequence</button>
+            <button class="secondary" id="clear-button" type="button">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel results" aria-labelledby="results-heading" aria-live="polite">
+        <h2 id="results-heading">Sequence summary</h2>
+        <div class="empty" id="empty-state">Your sequence statistics will appear here after analysis.</div>
+        <div id="summary" hidden>
+          <div class="stats">
+            <div class="stat"><span>Sequence length</span><strong id="length">—</strong></div>
+            <div class="stat"><span>GC content</span><strong id="gc">—</strong></div>
+            <div class="stat"><span>Unambiguous bases</span><strong id="canonical">—</strong></div>
+            <div class="stat"><span>Ambiguous bases</span><strong id="ambiguous">—</strong></div>
+          </div>
+          <div class="composition">
+            <h3>Base composition</h3>
+            <div class="base-row"><span>Adenine (A)</span><strong id="count-a">0</strong></div>
+            <div class="base-row"><span>Cytosine (C)</span><strong id="count-c">0</strong></div>
+            <div class="base-row"><span>Guanine (G)</span><strong id="count-g">0</strong></div>
+            <div class="base-row"><span>Thymine (T)</span><strong id="count-t">0</strong></div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <footer>For research and educational exploration only · Not a clinical tool</footer>
+  </main>
+
+  <script>
+    (() => {
+      const form = document.querySelector("#sequence-form");
+      const input = document.querySelector("#sequence");
+      const error = document.querySelector("#error");
+      const emptyState = document.querySelector("#empty-state");
+      const summary = document.querySelector("#summary");
+      const iupac = new Set("ACGTRYSWKMBDHVN");
+
+      function parseSequence(raw) {
+        const lines = raw.trim().split(/\r?\n/);
+        const headerIndex = lines.findIndex((line) => line.trim() !== "");
+        if (headerIndex < 0) return "";
+        if (lines[headerIndex].trim().startsWith(">")) {
+          lines.splice(headerIndex, 1);
+          if (lines.some((line) => line.trim().startsWith(">"))) {
+            throw new Error("Please enter one sequence record at a time.");
+          }
+        }
+        return lines.join("").replace(/\s/g, "").toUpperCase();
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        error.hidden = true;
+        try {
+          const sequence = parseSequence(input.value);
+          if (!sequence) throw new Error("Enter a DNA sequence to analyze.");
+          const invalid = [...sequence].find((base) => !iupac.has(base));
+          if (invalid) throw new Error(`"${invalid}" is not a supported DNA/IUPAC base. Please check the sequence.`);
+
+          const counts = Object.fromEntries(["A", "C", "G", "T"].map((base) => [
+            base,
+            [...sequence].filter((letter) => letter === base).length
+          ]));
+          const canonical = Object.values(counts).reduce((sum, count) => sum + count, 0);
+          const gc = canonical ? ((counts.C + counts.G) / canonical * 100).toFixed(1) + "%" : "N/A";
+          document.querySelector("#length").textContent = sequence.length.toLocaleString();
+          document.querySelector("#gc").textContent = gc;
+          document.querySelector("#canonical").textContent = canonical.toLocaleString();
+          document.querySelector("#ambiguous").textContent = (sequence.length - canonical).toLocaleString();
+          for (const base of ["A", "C", "G", "T"]) {
+            document.querySelector(`#count-${base.toLowerCase()}`).textContent = counts[base].toLocaleString();
+          }
+          emptyState.hidden = true;
+          summary.hidden = false;
+        } catch (exception) {
+          error.textContent = exception.message;
+          error.hidden = false;
+          summary.hidden = true;
+          emptyState.hidden = false;
+        }
+      });
+
+      document.querySelector("#clear-button").addEventListener("click", () => {
+        input.value = "";
+        error.hidden = true;
+        summary.hidden = true;
+        emptyState.hidden = false;
+        input.focus();
+      });
+    })();
+  </script>
+</body>
+</html>
