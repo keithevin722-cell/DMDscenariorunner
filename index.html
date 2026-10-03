@@ -1,586 +1,341 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f8f7">
-  <title>Sequence Explorer | DMD Scenario Runner</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #18312e;
-      --muted: #5d706c;
-      --green: #176c5b;
-      --green-dark: #105244;
-      --mint: #e6f3ed;
-      --line: #dbe5e1;
-      --paper: #fff;
-      --canvas: #f5f8f7;
-      --alert: #fff4df;
-      --alert-ink: #704a0e;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--canvas);
-      color: var(--ink);
-      line-height: 1.5;
-    }
-
-    .page {
-      width: min(100% - 40px, 980px);
-      margin: 0 auto;
-      padding: 28px 0 56px;
-    }
-
-    .topline {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--green-dark);
-      font-size: .9rem;
-      font-weight: 700;
-      letter-spacing: .02em;
-    }
-
-    .mark {
-      display: grid;
-      width: 34px;
-      height: 34px;
-      place-items: center;
-      border-radius: 11px;
-      background: var(--mint);
-      font-size: 1.15rem;
-    }
-
-    header { margin: 48px 0 28px; }
-
-    h1 {
-      max-width: 700px;
-      margin: 0 0 12px;
-      font-size: clamp(2rem, 5vw, 3.25rem);
-      letter-spacing: -.045em;
-      line-height: 1.08;
-    }
-
-    header p {
-      max-width: 680px;
-      margin: 0;
-      color: var(--muted);
-      font-size: 1.08rem;
-    }
-
-    .privacy {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin: 26px 0;
-      padding: 15px 17px;
-      border: 1px solid #eadbb7;
-      border-radius: 12px;
-      background: var(--alert);
-      color: var(--alert-ink);
-      font-size: .93rem;
-    }
-
-    .privacy strong { display: block; margin-bottom: 2px; }
-    .privacy p { margin: 0; }
-
-    .workspace {
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(240px, .8fr);
-      gap: 20px;
-      align-items: start;
-    }
-
-    .panel {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--paper);
-      box-shadow: 0 8px 24px rgb(20 55 46 / 4%);
-    }
-
-    .input-panel { padding: 24px; }
-
-    h2 {
-      margin: 0 0 6px;
-      font-size: 1.16rem;
-      letter-spacing: -.015em;
-    }
-
-    .hint {
-      margin: 0 0 18px;
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: .9rem;
-      font-weight: 700;
-    }
-
-    textarea {
-      display: block;
-      width: 100%;
-      min-height: 250px;
-      resize: vertical;
-      padding: 15px;
-      border: 1px solid #b9cbc5;
-      border-radius: 10px;
-      background: #fcfdfd;
-      color: var(--ink);
-      font: 500 .94rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    textarea:focus {
-      border-color: var(--green);
-      outline: 3px solid rgb(23 108 91 / 15%);
-    }
-
-    .input-note {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: .82rem;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    button {
-      min-height: 43px;
-      padding: 9px 16px;
-      border: 1px solid transparent;
-      border-radius: 9px;
-      cursor: pointer;
-      font: inherit;
-      font-size: .92rem;
-      font-weight: 700;
-    }
-
-    button:focus-visible {
-      outline: 3px solid rgb(23 108 91 / 28%);
-      outline-offset: 2px;
-    }
-
-    .primary { background: var(--green); color: white; }
-    .primary:hover { background: var(--green-dark); }
-    .secondary { border-color: var(--line); background: white; color: var(--ink); }
-    .secondary:hover { background: #f2f7f5; }
-
-    .results { padding: 22px; }
-    .results h2 { margin-bottom: 16px; }
-
-    .empty {
-      padding: 18px 14px;
-      border: 1px dashed #cbd9d4;
-      border-radius: 10px;
-      color: var(--muted);
-      font-size: .9rem;
-      text-align: center;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .stat {
-      min-width: 0;
-      padding: 13px;
-      border-radius: 10px;
-      background: #f3f8f6;
-    }
-
-    .stat span {
-      display: block;
-      color: var(--muted);
-      font-size: .78rem;
-    }
-
-    .stat strong {
-      display: block;
-      margin-top: 3px;
-      font-size: 1.24rem;
-      overflow-wrap: anywhere;
-    }
-
-    .composition {
-      margin-top: 17px;
-      padding-top: 15px;
-      border-top: 1px solid var(--line);
-    }
-
-    .composition h3 { margin: 0 0 9px; font-size: .9rem; }
-    .base-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: .88rem; }
-    .base-row span:first-child { color: var(--muted); }
-
-    .scenario-panel { margin-top: 20px; padding: 24px; }
-
-    .scenario-notice {
-      margin: 14px 0 20px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: #f3f8f6;
-      color: var(--muted);
-      font-size: .88rem;
-    }
-
-    .scenario-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .scenario-card {
-      padding: 15px;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-    }
-
-    .scenario-card h3 { margin: 0 0 12px; font-size: .97rem; }
-    .scenario-card label, .criteria label { font-size: .82rem; }
-    .scenario-card input, .criteria input[type="text"], .case-label input {
-      display: block;
-      width: 100%;
-      min-height: 39px;
-      margin-top: 5px;
-      padding: 8px 10px;
-      border: 1px solid #b9cbc5;
-      border-radius: 8px;
-      color: var(--ink);
-      font: inherit;
-    }
-
-    .criteria {
-      display: grid;
-      grid-template-columns: minmax(120px, 1fr) 140px;
-      gap: 10px;
-      align-items: end;
-      margin: 14px 0;
-    }
-
-    .criteria label, .case-label { display: block; }
-    .criteria input[type="range"] { width: 100%; accent-color: var(--green); }
-    .case-label { max-width: 440px; margin-bottom: 18px; }
-    .weight-value { display: block; color: var(--muted); font-size: .78rem; }
-
-    .rankings {
-      margin-top: 18px;
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
-    }
-
-    .rankings h3 { margin: 0 0 10px; font-size: .98rem; }
-    .ranking-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 11px; border-radius: 8px; }
-    .ranking-row:first-of-type { background: var(--mint); font-weight: 700; }
-    .ranking-row + .ranking-row { margin-top: 5px; background: #f7f9f8; }
-    .ranking-note { margin: 10px 0 0; color: var(--muted); font-size: .82rem; }
-
-    .error {
-      margin: 13px 0 0;
-      color: #a12d2d;
-      font-size: .9rem;
-      font-weight: 600;
-    }
-
-    [hidden] { display: none !important; }
-
-    footer {
-      margin-top: 22px;
-      color: var(--muted);
-      font-size: .82rem;
-      text-align: center;
-    }
-
-    @media (max-width: 720px) {
-      .page { width: min(100% - 28px, 560px); padding-top: 20px; }
-      header { margin-top: 36px; }
-      .workspace { grid-template-columns: 1fr; }
-      .input-panel { padding: 19px; }
-      .results { padding: 19px; }
-      .scenario-panel { padding: 19px; }
-      .scenario-grid { grid-template-columns: 1fr; }
-      .criteria { grid-template-columns: 1fr 115px; }
-    }
-  </style>
-</head>
-<body>
-  <main class="page">
-    <div class="topline"><span class="mark" aria-hidden="true">⌬</span> DMD SCENARIO RUNNER</div>
-
-    <header>
-      <h1>Explore a genetic sequence</h1>
-      <p>Paste a DNA sequence to see a few basic sequence statistics. This prototype analyzes sequence text only; it does not interpret variants or provide a diagnosis.</p>
-    </header>
-
-    <aside class="privacy" aria-label="Privacy notice">
-      <span aria-hidden="true">🔒</span>
-      <div>
-        <strong>Your sequence stays in this browser.</strong>
-        <p>This page processes input locally and does not upload or save it. Avoid entering identifying or sensitive information on shared devices.</p>
-      </div>
-    </aside>
-
-    <div class="workspace">
-      <section class="panel input-panel" aria-labelledby="input-heading">
-        <h2 id="input-heading">DNA sequence</h2>
-        <p class="hint">Paste a sequence directly or include one FASTA header line.</p>
-        <form id="sequence-form" novalidate>
-          <label for="sequence">Sequence input</label>
-          <textarea id="sequence" name="sequence" spellcheck="false" autocapitalize="characters" placeholder=">sample_sequence&#10;ATGCGTAC..." aria-describedby="input-note"></textarea>
-          <p class="input-note" id="input-note">Accepts DNA bases A, C, G, T and IUPAC ambiguity codes. Spaces and line breaks are ignored.</p>
-          <p class="error" id="error" role="alert" hidden></p>
-          <div class="actions">
-            <button class="primary" type="submit">Analyze sequence</button>
-            <button class="secondary" id="clear-button" type="button">Clear</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="panel results" aria-labelledby="results-heading" aria-live="polite">
-        <h2 id="results-heading">Sequence summary</h2>
-        <div class="empty" id="empty-state">Your sequence statistics will appear here after analysis.</div>
-        <div id="summary" hidden>
-          <div class="stats">
-            <div class="stat"><span>Sequence length</span><strong id="length">—</strong></div>
-            <div class="stat"><span>GC content</span><strong id="gc">—</strong></div>
-            <div class="stat"><span>Unambiguous bases</span><strong id="canonical">—</strong></div>
-            <div class="stat"><span>Ambiguous bases</span><strong id="ambiguous">—</strong></div>
-          </div>
-          <div class="composition">
-            <h3>Base composition</h3>
-            <div class="base-row"><span>Adenine (A)</span><strong id="count-a">0</strong></div>
-            <div class="base-row"><span>Cytosine (C)</span><strong id="count-c">0</strong></div>
-            <div class="base-row"><span>Guanine (G)</span><strong id="count-g">0</strong></div>
-            <div class="base-row"><span>Thymine (T)</span><strong id="count-t">0</strong></div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <section class="panel scenario-panel" aria-labelledby="scenario-heading">
-      <h2 id="scenario-heading">Compare hypothetical scenarios</h2>
-      <p class="hint">Run a weighted comparison using assumptions you provide. This exercise does not use the DNA sequence above.</p>
-      <div class="scenario-notice">
-        Scores and rankings are only arithmetic on your hypothetical inputs. They do not assess genetic damage, predict delivery, identify a suitable virus or treatment, or replace specialist advice. Do not enter patient-identifying information.
-      </div>
-      <form id="scenario-form" novalidate>
-        <label class="case-label" for="case-label">Optional case label (non-identifying)
-          <input id="case-label" type="text" maxlength="60" placeholder="e.g. Example deletion case">
-        </label>
-        <div class="criteria" aria-label="Comparison criteria and priorities">
-          <div>
-            <label for="criterion-1">Criterion 1</label>
-            <input id="criterion-1" type="text" maxlength="40" placeholder="Name the factor you are comparing" required>
-          </div>
-          <label for="weight-1">Priority
-            <input id="weight-1" type="range" min="1" max="5" value="3">
-            <span class="weight-value" id="weight-value-1">3 / 5</span>
-          </label>
-          <div>
-            <label for="criterion-2">Criterion 2</label>
-            <input id="criterion-2" type="text" maxlength="40" placeholder="Name the factor you are comparing" required>
-          </div>
-          <label for="weight-2">Priority
-            <input id="weight-2" type="range" min="1" max="5" value="3">
-            <span class="weight-value" id="weight-value-2">3 / 5</span>
-          </label>
-          <div>
-            <label for="criterion-3">Criterion 3</label>
-            <input id="criterion-3" type="text" maxlength="40" placeholder="Name the factor you are comparing" required>
-          </div>
-          <label for="weight-3">Priority
-            <input id="weight-3" type="range" min="1" max="5" value="3">
-            <span class="weight-value" id="weight-value-3">3 / 5</span>
-          </label>
-        </div>
-        <div class="scenario-grid">
-          <fieldset class="scenario-card">
-            <legend class="hint">Enter your own fictional scores (0–10)</legend>
-            <h3>Scenario A</h3>
-            <label for="name-a">Name<input id="name-a" type="text" maxlength="40" placeholder="Scenario A" required></label>
-            <label for="score-a-1">Criterion 1 score<input id="score-a-1" type="number" min="0" max="10" step="1" required></label>
-            <label for="score-a-2">Criterion 2 score<input id="score-a-2" type="number" min="0" max="10" step="1" required></label>
-            <label for="score-a-3">Criterion 3 score<input id="score-a-3" type="number" min="0" max="10" step="1" required></label>
-          </fieldset>
-          <fieldset class="scenario-card">
-            <legend class="hint">Enter your own fictional scores (0–10)</legend>
-            <h3>Scenario B</h3>
-            <label for="name-b">Name<input id="name-b" type="text" maxlength="40" placeholder="Scenario B" required></label>
-            <label for="score-b-1">Criterion 1 score<input id="score-b-1" type="number" min="0" max="10" step="1" required></label>
-            <label for="score-b-2">Criterion 2 score<input id="score-b-2" type="number" min="0" max="10" step="1" required></label>
-            <label for="score-b-3">Criterion 3 score<input id="score-b-3" type="number" min="0" max="10" step="1" required></label>
-          </fieldset>
-          <fieldset class="scenario-card">
-            <legend class="hint">Enter your own fictional scores (0–10)</legend>
-            <h3>Scenario C</h3>
-            <label for="name-c">Name<input id="name-c" type="text" maxlength="40" placeholder="Scenario C" required></label>
-            <label for="score-c-1">Criterion 1 score<input id="score-c-1" type="number" min="0" max="10" step="1" required></label>
-            <label for="score-c-2">Criterion 2 score<input id="score-c-2" type="number" min="0" max="10" step="1" required></label>
-            <label for="score-c-3">Criterion 3 score<input id="score-c-3" type="number" min="0" max="10" step="1" required></label>
-          </fieldset>
-        </div>
-        <p class="error" id="scenario-error" role="alert" hidden></p>
-        <div class="actions">
-          <button class="primary" type="submit">Run comparison</button>
-          <button class="secondary" id="scenario-clear" type="reset">Reset comparison</button>
-        </div>
-        <div class="rankings" id="rankings" aria-live="polite" hidden>
-          <h3 id="ranking-heading">Illustrative ranking</h3>
-          <div id="ranking-list"></div>
-          <p class="ranking-note">A higher number only means a higher weighted score from the values entered here; it is not a measure of biological or clinical suitability.</p>
-        </div>
-      </form>
-    </section>
-    <footer>For research and educational exploration only · Not a clinical tool</footer>
-  </main>
-
-  <script>
-    (() => {
-      const form = document.querySelector("#sequence-form");
-      const input = document.querySelector("#sequence");
-      const error = document.querySelector("#error");
-      const emptyState = document.querySelector("#empty-state");
-      const summary = document.querySelector("#summary");
-      const iupac = new Set("ACGTRYSWKMBDHVN");
-
-      function parseSequence(raw) {
-        const lines = raw.trim().split(/\r?\n/);
-        const headerIndex = lines.findIndex((line) => line.trim() !== "");
-        if (headerIndex < 0) return "";
-        if (lines[headerIndex].trim().startsWith(">")) {
-          lines.splice(headerIndex, 1);
-          if (lines.some((line) => line.trim().startsWith(">"))) {
-            throw new Error("Please enter one sequence record at a time.");
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="theme-color" content="#f5f8f7">
+      <title>Sequence Explorer | DMD Scenario Runner</title>
+    <style>
+          :root {
+                  color-scheme: light;
+                  --ink: #18312e;
+                  --muted: #5d706c;
+                  --green: #176c5b;
+                  --green-dark: #105244;
+                  --mint: #e6f3ed;
+                  --line: #dbe5e1;
+                  --paper: #fff;
+                  --canvas: #f5f8f7;
+                  --alert: #fff4df;
+                  --alert-ink: #704a0e;
+                  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           }
-        }
-        return lines.join("").replace(/\s/g, "").toUpperCase();
-      }
 
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        error.hidden = true;
-        try {
-          const sequence = parseSequence(input.value);
-          if (!sequence) throw new Error("Enter a DNA sequence to analyze.");
-          const invalid = [...sequence].find((base) => !iupac.has(base));
-          if (invalid) throw new Error(`"${invalid}" is not a supported DNA/IUPAC base. Please check the sequence.`);
+          * { box-sizing: border-box; }
 
-          const counts = Object.fromEntries(["A", "C", "G", "T"].map((base) => [
-            base,
-            [...sequence].filter((letter) => letter === base).length
-          ]));
-          const canonical = Object.values(counts).reduce((sum, count) => sum + count, 0);
-          const gc = canonical ? ((counts.C + counts.G) / canonical * 100).toFixed(1) + "%" : "N/A";
-          document.querySelector("#length").textContent = sequence.length.toLocaleString();
-          document.querySelector("#gc").textContent = gc;
-          document.querySelector("#canonical").textContent = canonical.toLocaleString();
-          document.querySelector("#ambiguous").textContent = (sequence.length - canonical).toLocaleString();
-          for (const base of ["A", "C", "G", "T"]) {
-            document.querySelector(`#count-${base.toLowerCase()}`).textContent = counts[base].toLocaleString();
+          body {
+                  margin: 0;
+                  background: var(--canvas);
+                  color: var(--ink);
+                  line-height: 1.5;
           }
-          emptyState.hidden = true;
-          summary.hidden = false;
-        } catch (exception) {
-          error.textContent = exception.message;
-          error.hidden = false;
-          summary.hidden = true;
-          emptyState.hidden = false;
-        }
-      });
 
-      document.querySelector("#clear-button").addEventListener("click", () => {
-        input.value = "";
-        error.hidden = true;
-        summary.hidden = true;
-        emptyState.hidden = false;
-        input.focus();
-      });
-
-      const scenarioForm = document.querySelector("#scenario-form");
-      const scenarioError = document.querySelector("#scenario-error");
-      const rankingSection = document.querySelector("#rankings");
-      const criteriaInputs = [1, 2, 3].map((index) => ({
-        label: document.querySelector(`#criterion-${index}`),
-        weight: document.querySelector(`#weight-${index}`)
-      }));
-
-      criteriaInputs.forEach(({ weight }, index) => {
-        weight.addEventListener("input", () => {
-          document.querySelector(`#weight-value-${index + 1}`).textContent = `${weight.value} / 5`;
-        });
-      });
-
-      scenarioForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        scenarioError.hidden = true;
-        const labels = criteriaInputs.map(({ label }) => label.value.trim());
-        if (labels.some((label) => !label)) {
-          scenarioError.textContent = "Name all three comparison criteria.";
-          scenarioError.hidden = false;
-          rankingSection.hidden = true;
-          return;
-        }
-
-        const weights = criteriaInputs.map(({ weight }) => Number(weight.value));
-        const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-        const scenarios = ["a", "b", "c"].map((key) => {
-          const name = document.querySelector(`#name-${key}`).value.trim();
-          const rawScores = [1, 2, 3].map((index) => document.querySelector(`#score-${key}-${index}`).value);
-          const scores = rawScores.map(Number);
-          if (!name || rawScores.some((score) => score === "") ||
-              scores.some((score) => !Number.isInteger(score) || score < 0 || score > 10)) {
-            return null;
+          .page {
+                  width: min(100% - 40px, 980px);
+                  margin: 0 auto;
+                  padding: 28px 0 56px;
           }
-          const weightedScore = scores.reduce((sum, score, index) => sum + score * weights[index], 0) / totalWeight;
-          return { name, weightedScore };
-        });
 
-        if (scenarios.some((scenario) => scenario === null)) {
-          scenarioError.textContent = "Give each scenario a name and enter whole-number scores from 0 to 10.";
-          scenarioError.hidden = false;
-          rankingSection.hidden = true;
-          return;
-        }
+          .topline {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  color: var(--green-dark);
+                  font-size: .9rem;
+                  font-weight: 700;
+                  letter-spacing: .02em;
+          }
 
-        scenarios.sort((first, second) => second.weightedScore - first.weightedScore);
-        const rankingList = document.querySelector("#ranking-list");
-        rankingList.replaceChildren();
-        scenarios.forEach(({ name, weightedScore }, index) => {
-          const row = document.createElement("div");
-          row.className = "ranking-row";
-          const label = document.createElement("span");
-          label.textContent = `${index + 1}. ${name}`;
-          const score = document.createElement("strong");
-          score.textContent = `${(weightedScore * 10).toFixed(1)} / 100`;
-          row.append(label, score);
-          rankingList.append(row);
-        });
-        const caseLabel = document.querySelector("#case-label").value.trim();
-        document.querySelector("#ranking-heading").textContent = caseLabel
-          ? `Illustrative ranking · ${caseLabel}`
-          : "Illustrative ranking";
-        rankingSection.hidden = false;
-      });
+          .mark {
+                  display: grid;
+                  width: 34px;
+                  height: 34px;
+                  place-items: center;
+                  border-radius: 11px;
+                  background: var(--mint);
+                  font-size: 1.15rem;
+          }
 
-      scenarioForm.addEventListener("reset", () => {
-        scenarioError.hidden = true;
-        rankingSection.hidden = true;
-        criteriaInputs.forEach((_, index) => {
-          document.querySelector(`#weight-value-${index + 1}`).textContent = "3 / 5";
-        });
-      });
-    })();
-  </script>
-</body>
-</html>
+          header { margin: 48px 0 28px; }
+
+          h1 {
+                  max-width: 700px;
+                  margin: 0 0 12px;
+                  font-size: clamp(2rem, 5vw, 3.25rem);
+                  letter-spacing: -.045em;
+                  line-height: 1.08;
+          }
+
+          header p {
+                  max-width: 680px;
+                  margin: 0;
+                  color: var(--muted);
+                  font-size: 1.08rem;
+          }
+
+          .privacy {
+                  display: flex;
+                  gap: 12px;
+                  align-items: flex-start;
+                  margin: 26px 0;
+                  padding: 15px 17px;
+                  border: 1px solid #eadbb7;
+                  border-radius: 12px;
+                  background: var(--alert);
+                  color: var(--alert-ink);
+                  font-size: .93rem;
+          }
+
+          .privacy strong { display: block; margin-bottom: 2px; }
+          .privacy p { margin: 0; }
+
+          .workspace {
+                  display: grid;
+                  grid-template-columns: minmax(0, 1.5fr) minmax(240px, .8fr);
+                  gap: 20px;
+                  align-items: start;
+          }
+
+          .panel {
+                  border: 1px solid var(--line);
+                  border-radius: 16px;
+                  background: var(--paper);
+                  box-shadow: 0 8px 24px rgb(20 55 46 / 4%);
+          }
+
+          .input-panel { padding: 24px; }
+
+          h2 {
+                  margin: 0 0 6px;
+                  font-size: 1.16rem;
+                  letter-spacing: -.015em;
+          }
+
+          .hint {
+                  margin: 0 0 18px;
+                  color: var(--muted);
+                  font-size: .9rem;
+          }
+
+          label {
+                  display: block;
+                  margin-bottom: 8px;
+                  font-size: .9rem;
+                  font-weight: 700;
+          }
+
+          textarea {
+                  display: block;
+                  width: 100%;
+                  min-height: 250px;
+                  resize: vertical;
+                  padding: 15px;
+                  border: 1px solid #b9cbc5;
+                  border-radius: 10px;
+                  background: #fcfdfd;
+                  color: var(--ink);
+                  font: 500 .94rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+          }
+
+          textarea:focus {
+                  border-color: var(--green);
+                  outline: 3px solid rgb(23 108 91 / 15%);
+          }
+
+          .input-note {
+                  margin: 8px 0 0;
+                  color: var(--muted);
+                  font-size: .82rem;
+          }
+
+          .actions {
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 10px;
+                  margin-top: 18px;
+          }
+
+          button {
+                  min-height: 43px;
+                  padding: 9px 16px;
+                  border: 1px solid transparent;
+                  border-radius: 9px;
+                  cursor: pointer;
+                  font: inherit;
+                  font-size: .92rem;
+                  font-weight: 700;
+          }
+
+          button:focus-visible {
+                  outline: 3px solid rgb(23 108 91 / 28%);
+                  outline-offset: 2px;
+          }
+
+          .primary { background: var(--green); color: white; }
+          .primary:hover { background: var(--green-dark); }
+          .secondary { border-color: var(--line); background: white; color: var(--ink); }
+          .secondary:hover { background: #f2f7f5; }
+
+          .results { padding: 22px; }
+          .results h2 { margin-bottom: 16px; }
+
+          .empty {
+                  padding: 18px 14px;
+                  border: 1px dashed #cbd9d4;
+                  border-radius: 10px;
+                  color: var(--muted);
+                  font-size: .9rem;
+                  text-align: center;
+          }
+
+          .stats {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 10px;
+          }
+
+          .stat {
+                  min-width: 0;
+                  padding: 13px;
+                  border-radius: 10px;
+                  background: #f3f8f6;
+          }
+
+          .stat span {
+                  display: block;
+                  color: var(--muted);
+                  font-size: .78rem;
+          }
+
+          .stat strong {
+                  display: block;
+                  margin-top: 3px;
+                  font-size: 1.24rem;
+                  overflow-wrap: anywhere;
+          }
+
+          .composition {
+                  margin-top: 17px;
+                  padding-top: 15px;
+                  border-top: 1px solid var(--line);
+          }
+
+          .composition h3 { margin: 0 0 9px; font-size: .9rem; }
+          .base-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: .88rem; }
+          .base-row span:first-child { color: var(--muted); }
+
+          .scenario-panel { margin-top: 20px; padding: 24px; }
+
+          .scenario-notice {
+                  margin: 14px 0 20px;
+                  padding: 12px 14px;
+                  border-radius: 10px;
+                  background: #f3f8f6;
+                  color: var(--muted);
+                  font-size: .88rem;
+          }
+
+          .scenario-grid {
+                  display: grid;
+                  grid-template-columns: repeat(3, minmax(0, 1fr));
+                  gap: 12px;
+          }
+
+          .scenario-card {
+                  padding: 15px;
+                  border: 1px solid var(--line);
+                  border-radius: 11px;
+          }
+
+          .scenario-card h3 { margin: 0 0 12px; font-size: .97rem; }
+          .scenario-card label, .criteria label { font-size: .82rem; }
+          .scenario-card input, .criteria input[type="text"], .case-label input {
+                  display: block;
+                  width: 100%;
+                  min-height: 39px;
+                  margin-top: 5px;
+                  padding: 8px 10px;
+                  border: 1px solid #b9cbc5;
+                  border-radius: 8px;
+                  color: var(--ink);
+                  font: inherit;
+          }
+
+          .criteria {
+                  display: grid;
+                  grid-template-columns: minmax(120px, 1fr) 140px;
+                  gap: 10px;
+                  align-items: end;
+                  margin: 14px 0;
+          }
+
+          .criteria label, .case-label { display: blo .iayag]i10co re lawd0;agom1p 
+                                        eg-aslboa-)fnrm
+                                         .nis mo 8x pdnx
+                                        ertp odvi .aigh{ag:p se rniw sa:lxjsfnep-te a ;aig9xx ded:  
+                                                         gr:ot{oa(m) n-ihrw k mip;bko 7;.kg-gx ;rvr-t) -z2e 
+                                                               o ri 3  orad  o- otw0e] p:nera;}forit  l:ud
+                                                        e. etl:; 
+                                                         diat:a ih n paigop}editp3  wpcrln }.ptl{axsl{:1 nipdig; ngi{-eltun1f;} .iea--ln;
+                                                                                                       <sl<dd mncaspc<a=k i-dtu>p>EAIE<i> ea
+                                                                                                      1Eles<1
+                                                                                                      pPeucts b eustc haseucxoy ntnei asp  <iels=ayaile"aytc ph�p   roy hswe<r  <>h  res ntlne pa ei vdr i rvfrtose> <
+                                                                                                       ad> c e liu-nlaeld=-ei <ugsqne2 <sn"at qercynFSe<>  fmsecfmnvia> <efsq"ctl  <x dsq"eqplas cthre"pchsmesun&1ATC. i-cb=ntoe< iuoinoeAt Abe nPgt d.ean eegod/
+                                                                                                        sr dthp  =ai
+                                                                                                         lspi y="nlzqe/un =sodyea-top"u"le<bt> <
+                                                                                                       / ci>sco a=arulbld=lsei"re> i=eei"eesa2
+                                                                                                         s"pma>rqsi a r as  ire
+                                                                                                        is>  <as"<Sup>"n"o>d> dcst>Ccnt/a>t—s/v  <ca=sa>i sssrgdc>t>/v iat>sms<>sog=ius>n>dv <d <a=ci" eoi <lse"<ae)sa<tnina daar"syon<s/<i> cs"a-o>nGn(p<tni"-><t<i  deTmn =nt0<i>  <i> i> n i spe-a"raeerg iedhas<h pls=iR witmusinusr o s Nsqecav< ac  sn n roltcnhphil  ndmpdcle iy uaiuoet epepclai.Dnnptnieignmo <fr"comnv> ae="o"saln a al(ntfn n dcslt"tmlgll"Emldc>  e
+                                                                                                        d  aCmen i  i
+                                                                                                       aorei <a ui"reop=tx e= leoNfur maqid  >  lefrwitry  ntd"i- prn1 x"5ae"> nl"t =w/  <al v  eo=i"C<a tt "x a"elrNeteao pgud
+                                                                                                        <  lwg->ry uiw"yeg i" "e3
+                                                                                                       <=g"le<sn  /
+                                                                                                       d>  lb rco3Ciele  u =ctiytxmgpcdNmt comgurd /
+                                                                                                        <blrwg"Pot  u"eh3tr 1 x =3
+                                                                                                         p wiv"wit-" <l
+                                                                                                        /v
+                                                                                                       vc=cni  <es asa
+                                                                                                        <ayuitnl/e>  c <h aoae"Nednmttmlg=por"er q>/ <r->roiui yr"a"=1r   le"o-2ineptsea"e"rm0x"ie
+                                                                                                       <alo"o>rn3siu"ceami =0se"<><ide
+                                                                                                       <"cacr>  lgdEn uis)/gn  hnih  enmNidaytxn"lcoeSoi<  o=crtisiuio1ebrm0m=1 e" /b> ae r"Ct  -y"u"=0teue<al  lercr-ioptdb3tp=rit"el
+                                                                                                        d e acd  gdca=i>nuft 0<>  3Se ha"Neiuae"y=etae=0cSeq<a brr-iopsnb"te>bl
+                                                                                                       a ortiso<ntdc2enmr"t qie/l> llf=r>re r<u =ce i""s=1urdbl  /es v  s=ri"orr"p
+                                                                                                       <ls"o"  <tnc >cpi/t  ua=sody caly=t> mas<t>  /v  lskn"rlee 
+                                                                                                        hi=rkeig>lvrk<  dd"a-<d  lsro ih les heso ttrdeo moc cluti/ <i> /r
+                                                                                                       stn
+                                                                                                      <orracadc pr n   o/r
+                                                                                                      
+                                                                                                      
+                                                                                                       )>n cetyt(ufr) ot=onec#qn" =cqte";nStnetr#a
+                                                                                                       ctr=mq" n a tAV"
+                                                                                                       inaea 
+                                                                                                        tler.i.sr/; thdd=sindi=n.i!)
+                                                                                                       dId<rtn"  hdest")  scharx ;  i(s(le=lrm.ah>  hPa nreertm 
+                                                                                                       rln(e/".s(
+                                                                                                            oEeisrum envnpvtf
+                                                                                                             ro=te
+                                                                                                        t  oeaseuu) f!n)h tD qoy;  ca.(b=) i niwr$l} tapdD/UAbPe teue) cs usOjrt[" ,"](be [   .siltltr=bs). ] cl b.lecnsc )= ) c o n+us) aa0xd  NA  orer"lt" en.tSr oeurl"g)neg dceti.xn lcl(  urSu.eot=sh-n.o;  s o,G" cmnl(utbstoCsetnect[tclSi
+                                                                                                                                                                                                                                                                                                                                 Shd mrhds  }thein {  r.n xiese
+                                                                                                                                                                                                                                                                                                                                                      oa u.dnyhda  uSlecerbt"ainrc)>
+                                                                                                                                                                                                                                                                                                                                                     u"; rdt; smhe=; eth le uu() ;cn ciom olcr"co"
+                                                                                                                                                                                                                                                                                                                                                     t ai=cetr"ero)
+                                                                                                                                                                                                                                                                                                                                                     cnin=omul"r
+                                                                                                                                                                                                                                                                                                                                                     cnraa(> utqltr{n})t uu`h-id}  ) ctrnu.oheh=  gtt"( ounqet-u-eeCt`{g.5 ; 
+                                                                                                                                                                                                                                                                                                                                                                                                                       aiainrv)
+                                                                                                                                                                                                                                                                                                                                                                                                                         .rD
+                                                                                                                                                                                                                                                                                                                                                                                                                         oroe tu tbleptmp{al}= b.u.r)  fa.)=!b)  snrtxtlhoas i; riea rkgdne
+                                                                                                                                                                                                                                                                                                                                                                                                                            oit Ips ihN(g.u)
+                                                                                                                                                                                                                                                                                                                                                                                                                        oshc(uwt, s "c]pky   seee`ak})le
+       otw miee.utr#-{n)v tsw.pmr
+                       f| o(e="
+                              eses nee<|r )  nl;  ceSr recm m+e*hstg rmo}
+      } i s= rol)  ret="e w-r t 
+       crn ae  rkchdn 
+       e; 
+       eain)>edhfsegtSo; ntkni uqrco#s)  neahle) ni.nce,{  ont ee s  oe"pn;  t`  comrtlto" srtet(c*0oi 0 rwap,;  ns.d  l=tretrelbv) ue.S(#niteaLe
+                                                          sai$cLb : lvkn;akneae  ; seaiaeLsest {  srod ce  rtnh_ )  nreo`ihei )eten  
+
+                                                                                                )/cy
+                                                                                                /m
+    </style></title>
+  </head>
